@@ -1,0 +1,8 @@
+echo "myenv/
+__pycache__/
+*.pyc
+reports/
+uploads/
+*.pptx
+*.pdf" > .gitignore
+git add .gitignore
