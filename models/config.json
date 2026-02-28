@@ -1,0 +1,17 @@
+{
+  "similarity_weights": {
+    "cosine": 0.2,
+    "jaccard": 0.30000000000000004,
+    "ngram": 0.5,
+    "semantic": 0.0
+  },
+  "similarity_weights_with_semantic": {
+    "cosine": 0.25,
+    "jaccard": 0.15,
+    "ngram": 0.15,
+    "semantic": 0.45
+  },
+  "plagiarism_threshold": 31.0,
+  "ai_detector_accuracy": 1.0,
+  "plagiarism_detector_accuracy": 1.0
+}

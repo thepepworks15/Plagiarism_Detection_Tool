@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Check Document - Plagiarism Detector{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <h2 class="fw-bold mb-4"><i class="fas fa-search text-primary me-2"></i>Check Single Document</h2>
+            <p class="text-muted mb-4">Upload a document to check for plagiarism against web sources or pasted text.</p>
+
+            <form method="POST" enctype="multipart/form-data" id="checkForm">
+                <div class="card p-4 mb-4">
+                    <h5 class="mb-3"><i class="fas fa-file-upload me-2"></i>Upload Document</h5>
+                    <div class="upload-area" id="dropzone" onclick="document.getElementById('document').click()">
+                        <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                        <p class="text-muted mb-1">Drag & drop or click to upload</p>
+                        <small class="text-muted">PDF, DOCX, or TXT (max 16MB)</small>
+                        <p class="mt-2 fw-bold text-primary" id="filename"></p>
+                    </div>
+                    <input type="file" class="d-none" id="document" name="document"
+                           accept=".pdf,.docx,.txt" required>
+                </div>
+
+                <div class="card p-4 mb-4">
+                    <h5 class="mb-3"><i class="fas fa-paste me-2"></i>Compare Against Text (Optional)</h5>
+                    <p class="text-muted small">Paste text here to compare the uploaded document against it.</p>
+                    <textarea class="form-control" name="compare_text" rows="6"
+                              placeholder="Paste comparison text here (optional)..."></textarea>
+                </div>
+
+                <div class="card p-4 mb-4">
+                    <h5 class="mb-3"><i class="fas fa-cog me-2"></i>Options</h5>
+                    <div class="form-check form-switch mb-2">
+                        <input class="form-check-input" type="checkbox" id="include_semantic"
+                               name="include_semantic">
+                        <label class="form-check-label" for="include_semantic">
+                            Include Semantic Analysis (requires comparison text)
+                        </label>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary btn-lg px-5" id="submitBtn">
+                        <i class="fas fa-search me-2"></i>Check for Plagiarism
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('document').addEventListener('change', function() {
+        document.getElementById('filename').textContent = this.files[0]?.name || '';
+    });
+
+    const zone = document.getElementById('dropzone');
+    const input = document.getElementById('document');
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+    zone.addEventListener('drop', e => {
+        e.preventDefault();
+        zone.classList.remove('dragover');
+        if (e.dataTransfer.files.length) {
+            input.files = e.dataTransfer.files;
+            document.getElementById('filename').textContent = e.dataTransfer.files[0].name;
+        }
+    });
+
+    document.getElementById('checkForm').addEventListener('submit', function() {
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Checking... This may take a moment';
+    });
+</script>
+{% endblock %}

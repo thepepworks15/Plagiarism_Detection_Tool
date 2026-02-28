@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}Compare Documents - Plagiarism Detector{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <h2 class="fw-bold mb-4"><i class="fas fa-exchange-alt text-primary me-2"></i>Compare Two Documents</h2>
+            <p class="text-muted mb-4">Upload two documents to check for plagiarism between them.</p>
+
+            <form method="POST" enctype="multipart/form-data" id="compareForm">
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div class="card p-4">
+                            <h5 class="mb-3"><i class="fas fa-file me-2"></i>Document 1 (Source)</h5>
+                            <div class="upload-area" id="dropzone1" onclick="document.getElementById('document1').click()">
+                                <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                                <p class="text-muted mb-1">Drag & drop or click to upload</p>
+                                <small class="text-muted">PDF, DOCX, or TXT (max 16MB)</small>
+                                <p class="mt-2 fw-bold text-primary" id="filename1"></p>
+                            </div>
+                            <input type="file" class="d-none" id="document1" name="document1"
+                                   accept=".pdf,.docx,.txt" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="card p-4">
+                            <h5 class="mb-3"><i class="fas fa-file me-2"></i>Document 2 (Comparison)</h5>
+                            <div class="upload-area" id="dropzone2" onclick="document.getElementById('document2').click()">
+                                <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                                <p class="text-muted mb-1">Drag & drop or click to upload</p>
+                                <small class="text-muted">PDF, DOCX, or TXT (max 16MB)</small>
+                                <p class="mt-2 fw-bold text-primary" id="filename2"></p>
+                            </div>
+                            <input type="file" class="d-none" id="document2" name="document2"
+                                   accept=".pdf,.docx,.txt" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card p-4 mb-4">
+                    <h5 class="mb-3"><i class="fas fa-cog me-2"></i>Options</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-check form-switch mb-2">
+                                <input class="form-check-input" type="checkbox" id="include_semantic"
+                                       name="include_semantic" checked>
+                                <label class="form-check-label" for="include_semantic">
+                                    Include Semantic Analysis (AI-powered, slower)
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check form-switch mb-2">
+                                <input class="form-check-input" type="checkbox" id="web_check" name="web_check">
+                                <label class="form-check-label" for="web_check">
+                                    Check against web sources (requires API key)
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary btn-lg px-5" id="submitBtn">
+                        <i class="fas fa-search me-2"></i>Analyze for Plagiarism
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // File input display
+    document.getElementById('document1').addEventListener('change', function() {
+        document.getElementById('filename1').textContent = this.files[0]?.name || '';
+    });
+    document.getElementById('document2').addEventListener('change', function() {
+        document.getElementById('filename2').textContent = this.files[0]?.name || '';
+    });
+
+    // Drag and drop
+    ['dropzone1', 'dropzone2'].forEach((id, idx) => {
+        const zone = document.getElementById(id);
+        const input = document.getElementById('document' + (idx + 1));
+
+        zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+        zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+        zone.addEventListener('drop', e => {
+            e.preventDefault();
+            zone.classList.remove('dragover');
+            if (e.dataTransfer.files.length) {
+                input.files = e.dataTransfer.files;
+                document.getElementById('filename' + (idx + 1)).textContent = e.dataTransfer.files[0].name;
+            }
+        });
+    });
+
+    // Loading state
+    document.getElementById('compareForm').addEventListener('submit', function() {
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Analyzing... This may take a moment';
+    });
+</script>
+{% endblock %}

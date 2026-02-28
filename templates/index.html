@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Plagiarism Detection Tool - Home{% endblock %}
+
+{% block content %}
+<div class="hero-section text-center">
+    <div class="container">
+        <h1 class="display-4 fw-bold mb-3">Plagiarism Detection Tool</h1>
+        <p class="lead mb-4">Advanced document analysis powered by multiple similarity algorithms<br>and semantic AI understanding</p>
+        <a href="{{ url_for('compare') }}" class="btn btn-light btn-lg me-3">
+            <i class="fas fa-exchange-alt me-2"></i>Compare Documents
+        </a>
+        <a href="{{ url_for('check_single') }}" class="btn btn-outline-light btn-lg">
+            <i class="fas fa-search me-2"></i>Check Document
+        </a>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row mb-5">
+        <div class="col-12 text-center mb-4">
+            <h2 class="fw-bold">How It Works</h2>
+            <p class="text-muted">Our tool uses four powerful algorithms to detect plagiarism</p>
+        </div>
+
+        <div class="col-md-3 mb-4">
+            <div class="card h-100 text-center p-4">
+                <div class="feature-icon"><i class="fas fa-vector-square"></i></div>
+                <h5>Cosine Similarity</h5>
+                <p class="text-muted small">Converts documents to TF-IDF vectors and measures the angle between them. Excellent for overall document comparison.</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card h-100 text-center p-4">
+                <div class="feature-icon"><i class="fas fa-circle-notch"></i></div>
+                <h5>Jaccard Similarity</h5>
+                <p class="text-muted small">Measures the overlap between token sets using intersection over union. Detects copy-paste with minor changes.</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card h-100 text-center p-4">
+                <div class="feature-icon"><i class="fas fa-grip-horizontal"></i></div>
+                <h5>N-gram Analysis</h5>
+                <p class="text-muted small">Compares overlapping word sequences (trigrams) to identify reordered text and structural similarities.</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card h-100 text-center p-4">
+                <div class="feature-icon"><i class="fas fa-brain"></i></div>
+                <h5>Semantic Similarity</h5>
+                <p class="text-muted small">Uses AI sentence transformers to understand meaning. Catches intelligent paraphrasing that lexical methods miss.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-12 text-center mb-4">
+            <h2 class="fw-bold">Features</h2>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card p-4 algo-card h-100">
+                <h5><i class="fas fa-file-upload text-primary me-2"></i>Multi-format Upload</h5>
+                <p class="text-muted mb-0">Support for PDF, DOCX, and TXT file formats with automatic text extraction.</p>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card p-4 algo-card h-100">
+                <h5><i class="fas fa-globe text-primary me-2"></i>Web Search Check</h5>
+                <p class="text-muted mb-0">Check documents against online sources using Google Custom Search API.</p>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card p-4 algo-card h-100">
+                <h5><i class="fas fa-layer-group text-primary me-2"></i>Batch Processing</h5>
+                <p class="text-muted mb-0">Compare multiple documents simultaneously with a pairwise similarity matrix.</p>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card p-4 algo-card h-100">
+                <h5><i class="fas fa-highlighter text-primary me-2"></i>Highlighted Reports</h5>
+                <p class="text-muted mb-0">Color-coded visualization showing matched sections with similarity levels.</p>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card p-4 algo-card h-100">
+                <h5><i class="fas fa-file-pdf text-primary me-2"></i>PDF Export</h5>
+                <p class="text-muted mb-0">Download detailed plagiarism reports as professionally formatted PDF documents.</p>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card p-4 algo-card h-100">
+                <h5><i class="fas fa-code text-primary me-2"></i>REST API</h5>
+                <p class="text-muted mb-0">Programmatic access via REST API for integration with other systems.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

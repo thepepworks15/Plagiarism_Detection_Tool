@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+{% block title %}Plagiarism Report - {{ doc1_name }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1"><i class="fas fa-chart-bar text-primary me-2"></i>Plagiarism Report</h2>
+            <p class="text-muted mb-0">
+                <strong>{{ doc1_name }}</strong>
+                {% if doc2_name %} vs <strong>{{ doc2_name }}</strong>{% endif %}
+            </p>
+        </div>
+        <a href="{{ url_for('download_report', filename=pdf_filename) }}" class="btn btn-accent">
+            <i class="fas fa-file-pdf me-2"></i>Download PDF Report
+        </a>
+    </div>
+
+    <!-- Overall Score -->
+    <div class="card p-4 mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-4 text-center">
+                <div class="score-badge {% if results.overall_plagiarism_score < 30 %}score-low{% elif results.overall_plagiarism_score < 50 %}score-medium{% else %}score-high{% endif %}">
+                    {{ results.overall_plagiarism_score }}%
+                </div>
+                <p class="fw-bold mb-0">Overall Plagiarism Score</p>
+            </div>
+            <div class="col-md-4 text-center">
+                <span class="badge {% if results.overall_plagiarism_score < 30 %}bg-success{% elif results.overall_plagiarism_score < 50 %}bg-warning text-dark{% else %}bg-danger{% endif %} fs-6 px-4 py-2">
+                    {{ results.classification }}
+                </span>
+            </div>
+            <div class="col-md-4">
+                <div class="progress progress-custom mb-2">
+                    <div class="progress-bar {% if results.overall_plagiarism_score < 30 %}bg-success{% elif results.overall_plagiarism_score < 50 %}bg-warning{% else %}bg-danger{% endif %}"
+                         style="width: {{ results.overall_plagiarism_score }}%">
+                        {{ results.overall_plagiarism_score }}%
+                    </div>
+                </div>
+                <small class="text-muted">
+                    0-15%: Original | 15-30%: Low | 30-50%: Moderate | 50-75%: High | 75%+: Very High
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Algorithm Breakdown -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card p-3 text-center h-100">
+                <i class="fas fa-vector-square feature-icon"></i>
+                <h6>Cosine Similarity</h6>
+                <p class="display-6 fw-bold {% if results.cosine_similarity < 0.3 %}score-low{% elif results.cosine_similarity < 0.5 %}score-medium{% else %}score-high{% endif %}">
+                    {{ "%.1f"|format(results.cosine_similarity * 100) }}%
+                </p>
+                <small class="text-muted">TF-IDF vector comparison</small>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card p-3 text-center h-100">
+                <i class="fas fa-circle-notch feature-icon"></i>
+                <h6>Jaccard Similarity</h6>
+                <p class="display-6 fw-bold {% if results.jaccard_similarity < 0.3 %}score-low{% elif results.jaccard_similarity < 0.5 %}score-medium{% else %}score-high{% endif %}">
+                    {{ "%.1f"|format(results.jaccard_similarity * 100) }}%
+                </p>
+                <small class="text-muted">Token set overlap</small>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card p-3 text-center h-100">
+                <i class="fas fa-grip-horizontal feature-icon"></i>
+                <h6>N-gram Analysis</h6>
+                <p class="display-6 fw-bold {% if results.ngram_analysis.score < 0.3 %}score-low{% elif results.ngram_analysis.score < 0.5 %}score-medium{% else %}score-high{% endif %}">
+                    {{ "%.1f"|format(results.ngram_analysis.score * 100) }}%
+                </p>
+                <small class="text-muted">Trigram overlap</small>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card p-3 text-center h-100">
+                <i class="fas fa-brain feature-icon"></i>
+                <h6>Semantic Similarity</h6>
+                <p class="display-6 fw-bold {% if results.semantic_similarity.score < 0.3 %}score-low{% elif results.semantic_similarity.score < 0.5 %}score-medium{% else %}score-high{% endif %}">
+                    {{ "%.1f"|format(results.semantic_similarity.score * 100) }}%
+                </p>
+                <small class="text-muted">AI meaning analysis</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Detection -->
+    {% if ai_result and ai_result.label != 'unknown' %}
+    <div class="card p-4 mb-4">
+        <h5 class="mb-3"><i class="fas fa-robot me-2"></i>AI-Generated Text Detection</h5>
+        <div class="row align-items-center">
+            <div class="col-md-3 text-center">
+                <div class="score-badge {% if ai_result.is_ai %}score-high{% else %}score-low{% endif %}" style="font-size: 1.2rem;">
+                    {{ ai_result.label }}
+                </div>
+            </div>
+            <div class="col-md-3 text-center">
+                <h6 class="text-muted mb-1">Confidence</h6>
+                <p class="display-6 fw-bold mb-0">{{ "%.1f"|format(ai_result.confidence * 100) }}%</p>
+            </div>
+            <div class="col-md-3 text-center">
+                <h6 class="text-muted mb-1">AI Probability</h6>
+                <div class="progress" style="height: 24px;">
+                    <div class="progress-bar {% if ai_result.ai_probability > 0.5 %}bg-danger{% else %}bg-success{% endif %}"
+                         style="width: {{ ai_result.ai_probability * 100 }}%">
+                        {{ "%.1f"|format(ai_result.ai_probability * 100) }}%
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 text-center">
+                <h6 class="text-muted mb-1">Human Probability</h6>
+                <div class="progress" style="height: 24px;">
+                    <div class="progress-bar {% if ai_result.human_probability > 0.5 %}bg-success{% else %}bg-danger{% endif %}"
+                         style="width: {{ ai_result.human_probability * 100 }}%">
+                        {{ "%.1f"|format(ai_result.human_probability * 100) }}%
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Highlighted Document -->
+    <div class="card p-4 mb-4">
+        <h5 class="mb-3"><i class="fas fa-highlighter me-2"></i>Highlighted Document (Matched Sections)</h5>
+        <div class="mb-2">
+            <span class="badge" style="background:#ff4444">High Match (>90%)</span>
+            <span class="badge" style="background:#ff8800">Medium Match (>80%)</span>
+            <span class="badge" style="background:#ffcc00; color:#333">Low Match (>70%)</span>
+        </div>
+        <div class="highlighted-text">
+            {{ highlighted_html | safe }}
+        </div>
+    </div>
+
+    <!-- Semantic Matches -->
+    {% if results.semantic_similarity.matched_pairs %}
+    <div class="card p-4 mb-4">
+        <h5 class="mb-3"><i class="fas fa-link me-2"></i>Matched Sentence Pairs</h5>
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>#</th>
+                        <th>Source Sentence</th>
+                        <th>Matched Sentence</th>
+                        <th>Similarity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pair in results.semantic_similarity.matched_pairs[:15] %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td><small>{{ pair.source_sentence[:150] }}{% if pair.source_sentence|length > 150 %}...{% endif %}</small></td>
+                        <td><small>{{ pair.matched_sentence[:150] }}{% if pair.matched_sentence|length > 150 %}...{% endif %}</small></td>
+                        <td>
+                            <span class="badge {% if pair.similarity > 0.9 %}bg-danger{% elif pair.similarity > 0.8 %}bg-warning text-dark{% else %}bg-info{% endif %}">
+                                {{ "%.1f"|format(pair.similarity * 100) }}%
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- N-gram Matches -->
+    {% if results.ngram_analysis.matching_ngrams %}
+    <div class="card p-4 mb-4">
+        <h5 class="mb-3"><i class="fas fa-grip-horizontal me-2"></i>Matching N-grams (Trigrams)</h5>
+        <p class="text-muted small">
+            Found {{ results.ngram_analysis.common_count }} common trigrams
+        </p>
+        <div>
+            {% for ng in results.ngram_analysis.matching_ngrams[:30] %}
+                <span class="badge bg-light text-dark border me-1 mb-1">{{ ng }}</span>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Web Search Results -->
+    {% if results.web_search %}
+    <div class="card p-4 mb-4">
+        <h5 class="mb-3"><i class="fas fa-globe me-2"></i>Web Source Check</h5>
+        {% if not results.web_search.enabled %}
+            <div class="alert alert-info mb-0">
+                <i class="fas fa-info-circle me-2"></i>{{ results.web_search.get('message', 'Web search not enabled.') }}
+            </div>
+        {% elif results.web_search.sources %}
+            <p class="text-muted small">Found {{ results.web_search.sources_found }} potential online sources</p>
+            <div class="list-group">
+                {% for source in results.web_search.sources[:10] %}
+                <a href="{{ source.link }}" target="_blank" class="list-group-item list-group-item-action">
+                    <div class="d-flex justify-content-between">
+                        <h6 class="mb-1">{{ source.title }}</h6>
+                        <i class="fas fa-external-link-alt text-muted"></i>
+                    </div>
+                    <p class="mb-1 small text-muted">{{ source.snippet }}</p>
+                    <small class="text-primary">{{ source.link }}</small>
+                </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-success mb-0"><i class="fas fa-check-circle me-2"></i>No matching online sources found.</p>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Actions -->
+    <div class="text-center">
+        <a href="{{ url_for('download_report', filename=pdf_filename) }}" class="btn btn-accent btn-lg me-2">
+            <i class="fas fa-download me-2"></i>Download PDF Report
+        </a>
+        <a href="{{ url_for('compare') }}" class="btn btn-outline-primary btn-lg">
+            <i class="fas fa-redo me-2"></i>New Comparison
+        </a>
+    </div>
+</div>
+{% endblock %}
